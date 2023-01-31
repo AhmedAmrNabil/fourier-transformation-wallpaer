@@ -7,6 +7,7 @@ let avgx = 0;
 let avgy = 0;
 let coordx = [];
 let coordy = [];
+let grey = false;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -51,11 +52,11 @@ function epicycles(fourier, t, path) {
   let y = height / 2;
   fourier.forEach((cycle) => {
     const omega = TWO_PI * cycle.freq;
-    drawcircles(x, y, cycle.amp, cycle.freq);
     let xold = x;
     let yold = y;
     x += cycle.amp * cos(omega * t + cycle.phase);
     y += cycle.amp * sin(omega * t + cycle.phase);
+    drawcircles(xold, yold, cycle.amp);
     drawArrow(xold, yold, x, y, cycle.amp);
   });
   path.push(createVector(x, y));
@@ -65,10 +66,10 @@ function epicycles(fourier, t, path) {
 }
 
 function drawpath(t) {
-  stroke(221, 209, 0);
+  noFill();
+  stroke(220, 210, 0);
   strokeWeight(2);
-  // fill(221, 209, 0);
-  let f = 1 - t;
+  // let f = 1 - t;
   // for (let i = 1; i < path.length; i++) {
   //   stroke((221 * i * 2) / path.length, (209 * i * 2) / path.length, 0);
   //   line(path[i].x, path[i].y, path[i - 1].x, path[i - 1].y);
@@ -77,7 +78,6 @@ function drawpath(t) {
   for (let i = 0; i < path.length; i++) {
     curveVertex(path[i].x, path[i].y);
   }
-  vertex(0,0)
   endShape();
 }
 
@@ -87,7 +87,8 @@ function drawArrow(xold, yold, x, y, scal) {
   v = createVector(x - xold, y - yold);
   v.mult(0.99);
   push();
-  fill(200);
+  colorMode(HSB);
+  fill(200, 0.8);
   translate(x, y);
   rotate(v.heading());
   strokeWeight(0);
@@ -95,20 +96,26 @@ function drawArrow(xold, yold, x, y, scal) {
   pop();
 
   push();
-  stroke(200);
-  strokeWeight(2);
+  colorMode(HSB);
+  strokeCap(ROUND);
+  stroke(200, 0.7);
+  strokeWeight(2.5);
   translate(xold, yold);
   line(0, 0, v.x, v.y);
   pop();
 }
 
-function drawcircles(x, y, l, freq) {
-  if (freq % 2 == 1 && l != 0) {
-    stroke(27, 69, 84);
+function drawcircles(x, y, l) {
+  push();
+  colorMode(HSB);
+  if (grey) {
+    stroke(0, 0, 33, 0.8);
   } else {
-    stroke(84);
+    stroke(196, 68, 33, 0.8);
   }
   noFill();
   strokeWeight(2);
   circle(x, y, 2 * l);
+  grey = !grey
+  pop();
 }

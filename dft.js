@@ -1,27 +1,25 @@
-function multi(a, b) {
-  const c = createVector(a.x * b.x - a.y * b.y, a.y * b.x + b.y * a.x);
+function complexMult(a, b) {
+  const re = a.x * b.x - a.y * b.y;
+  const im = a.y * b.x + a.x * b.y;
+  const c = createVector(re,im);
   return c;
 }
+function expo(phi) {
+  const res = createVector(cos(phi), -sin(phi));
+  return res;
+}
 
-function dft(X) {
-  let converted = [];
-  const N = X.length;
+function dft(x) {
+  let X = [];
+  const N = x.length;
   for (let k = 0; k < N; k++) {
     let sum = createVector(0, 0);
-    const omega = 2 * PI * k;
+    const w = TWO_PI * k;
     for (let n = 0; n < N; n++) {
-      const phi = (omega * n) / N;
-      const exp = createVector(cos(phi), -sin(phi));
-      const data = createVector(X[n].x, X[n].y);
-      const mult = multi(data, exp);
-      sum.add(mult.x, mult.y);
+      sum.add(complexMult(x[n], expo((w * n) / N)));
     }
-    sum = createVector(sum.x / N, sum.y / N);
-    freq = k;
-    amp = sqrt(sum.x * sum.x + sum.y * sum.y);
-    phase = atan2(sum.y, sum.x);
-    converted.push({ freq: freq, amp: amp, phase: phase });
+    sum.mult(1 / N);
+    X.push({ freq: k, amp: sum.mag(), phase: sum.heading() });
   }
-  // converted[0].amp = 0;
-  return converted;
+  return X;
 }
